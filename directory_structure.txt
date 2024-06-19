@@ -1,0 +1,27 @@
+├── README.md
+├── libraries.db
+├── local_dir_structure.py
+├── requirements.txt
+├── setup_database.ps1
+└── virtualenv_manager
+    ├── __pycache__
+    │   ├── django_setup.cpython-312.pyc
+    │   ├── env_manager.cpython-312.pyc
+    │   ├── file_manager.cpython-312.pyc
+    │   ├── github_dir_structure.cpython-312.pyc
+    │   ├── local_dir_structure.cpython-312.pyc
+    │   └── package_installer.cpython-312.pyc
+    ├── cli.py
+    ├── config
+    │   ├── __init__.py
+    │   ├── __pycache__
+    │   │   ├── __init__.cpython-312.pyc
+    │   │   └── settings.cpython-312.pyc
+    │   ├── constants.py
+    │   └── settings.py
+    ├── django_setup.py
+    ├── env_manager.py
+    ├── file_manager.py
+    ├── github_dir_structure.py
+    ├── gui.py
+    └── package_installer.py
