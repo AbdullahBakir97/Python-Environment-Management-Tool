@@ -13,7 +13,7 @@ The **Python Environment Management Tool** provides a graphical user interface (
 
 - 📚 **Library Management:**
   - Add, update, fetch, and delete libraries in an SQLite database.
-  - Installation commands, settings, and documentation URLs can be specified for each library.
+  - Specify installation commands, settings, and documentation URLs for each library.
 
 - 🛠️ **Virtual Environment Management:**
   - Create virtual environments with custom names and locations.
@@ -22,6 +22,11 @@ The **Python Environment Management Tool** provides a graphical user interface (
 - 🗂️ **File and Project Management:**
   - Create, delete, and manage files and folders directly from the GUI.
   - Support for creating Django projects, adding apps, and managing directory structures.
+
+- ⚙️ **Automated Django Setup:**
+  - Create new Django projects within specified virtual environments.
+  - Configure Django settings for integration with Whitenoise, Celery, and Channels.
+  - Add new Django apps to the project and configure middleware and static file storage settings.
 
 - 🔄 **GitHub Integration:**
   - Clone repositories directly from GitHub into specified directories.
