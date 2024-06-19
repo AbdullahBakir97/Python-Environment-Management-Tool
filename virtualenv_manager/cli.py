@@ -5,7 +5,6 @@ from file_manager import FileManager
 from package_installer import PackageInstaller
 from django_setup import DjangoSetup
 from dir_structure import write_directory_structure_to_file as write_local_structure
-from github_manager import write_directory_structure_to_file as write_github_structure, extract_github_details, fetch_directory_structure_from_github
 
 def main():
     parser = argparse.ArgumentParser(description="Virtual Environment Management Tool")

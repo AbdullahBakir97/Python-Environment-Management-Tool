@@ -1,14 +1,127 @@
+├── .git
+│   ├── COMMIT_EDITMSG
+│   ├── HEAD
+│   ├── config
+│   ├── description
+│   ├── hooks
+│   │   ├── applypatch-msg.sample
+│   │   ├── commit-msg.sample
+│   │   ├── fsmonitor-watchman.sample
+│   │   ├── post-update.sample
+│   │   ├── pre-applypatch.sample
+│   │   ├── pre-commit.sample
+│   │   ├── pre-merge-commit.sample
+│   │   ├── pre-push.sample
+│   │   ├── pre-rebase.sample
+│   │   ├── pre-receive.sample
+│   │   ├── prepare-commit-msg.sample
+│   │   ├── push-to-checkout.sample
+│   │   └── update.sample
+│   ├── index
+│   ├── info
+│   │   └── exclude
+│   ├── logs
+│   │   ├── HEAD
+│   │   └── refs
+│   │       ├── heads
+│   │       │   └── main
+│   │       └── remotes
+│   │           └── origin
+│   │               └── main
+│   ├── objects
+│   │   ├── 09
+│   │   │   └── 5ea119bdbcf9644c694cdea7132b9fdbe97684
+│   │   ├── 0e
+│   │   │   └── 249c58a6f152b5198769a2974bc5bdbf8363fc
+│   │   ├── 10
+│   │   │   └── 1c20270695eef39a22b26cef8662eb234093f6
+│   │   ├── 1e
+│   │   │   └── d2b54f92a9a5d533d41a810f1df0e9f78b745d
+│   │   ├── 1f
+│   │   │   └── 11da14f9d222625af0665d1ef400a719d8a08d
+│   │   ├── 20
+│   │   │   └── 9839b281f2a23fbd4ad78ace395479ef0cbfa4
+│   │   ├── 23
+│   │   │   └── c7983d52ce16f78cf0f142b3a4023f1d379ae5
+│   │   ├── 30
+│   │   │   └── 3e56f21eb0abb7fe69903458b65b2e661b282b
+│   │   ├── 3f
+│   │   │   └── ab717952595be5cd6911c2b0adc1ca2aa0544c
+│   │   ├── 44
+│   │   │   └── 5b65d4b0ddb19791e3bc96c7be1228e769e161
+│   │   ├── 47
+│   │   │   └── d6763e96e85c1272efe62620a37b9c7a223f72
+│   │   ├── 52
+│   │   │   ├── 8514c5e4c192b5e5d34f4898d16a3986dad1e7
+│   │   │   └── b59f309359815738b13d09fadab9ce50c15e65
+│   │   ├── 6d
+│   │   │   └── bb0bb44e74a2480b2074ceb63e466268cc5ad4
+│   │   ├── 6f
+│   │   │   ├── b3d275147898b94e7664c2f079fe16f5b4baf2
+│   │   │   └── bb68909714e673fbe886cecc382dbe756ef9f4
+│   │   ├── 76
+│   │   │   └── 88f85b8f4628e958663bd317509b936826aa41
+│   │   ├── 78
+│   │   │   ├── 262a0d82cfe94a1b3531f407b7dbd32736a0fe
+│   │   │   └── c7485756ded75e02bc13df1ff49a76792db3fb
+│   │   ├── 81
+│   │   │   └── 0f848cd720ea72246ce69cbc2ccd64aafa721d
+│   │   ├── 8a
+│   │   │   └── 2cf3b411f24270aa2abec9cf0d87ea724c500f
+│   │   ├── 91
+│   │   │   └── 9d10d4de29ec6d104eeecebd45fa5ffd1c6b9e
+│   │   ├── a3
+│   │   │   └── 710ea51ab9bf27056a49df039e66b37e25cc89
+│   │   ├── b2
+│   │   │   └── 58f0803e614a15cb91c85f332241483c1ffe0f
+│   │   ├── b8
+│   │   │   └── ebc310c1d58bbc517f8087ffa3849ce72b9951
+│   │   ├── bf
+│   │   │   └── 7fc395868301d2a4df1e5ce8cfd037c2530da9
+│   │   ├── c4
+│   │   │   └── bb940c7a9c79875dad9408409c929fc7bab67b
+│   │   ├── c7
+│   │   │   └── 932af1825e5477f356f312fc0080ed030582e4
+│   │   ├── c9
+│   │   │   └── 7f2a75321e4e8891ca84f69905c9c1c37224cb
+│   │   ├── cd
+│   │   │   └── 084c87b4d1885ed55f84d2f9a80838d7a66832
+│   │   ├── df
+│   │   │   └── be985d6d3f24960b78b7f658c4f118c67c4311
+│   │   ├── e6
+│   │   │   └── 9de29bb2d1d6434b8b29ae775ad8c2e48c5391
+│   │   ├── ea
+│   │   │   └── b143062ed0ea40b1b50985ba4718e1d3c47ce6
+│   │   ├── ed
+│   │   │   └── 76d6ede1057b0c5f590618186906532c61fe85
+│   │   ├── f9
+│   │   │   └── 8d22203075baea8b128a6860013a573e71045d
+│   │   ├── fc
+│   │   │   └── c166ff3bc50da0743846c19033dc41039751e7
+│   │   ├── info
+│   │   └── pack
+│   └── refs
+│       ├── heads
+│       │   └── main
+│       ├── remotes
+│       │   └── origin
+│       │       └── main
+│       └── tags
 ├── README.md
+├── dir_structure.py
+├── directory_structure.txt
 ├── libraries.db
-├── local_dir_structure.py
 ├── requirements.txt
 ├── setup_database.ps1
 └── virtualenv_manager
     ├── __pycache__
+    │   ├── db_manager.cpython-312.pyc
+    │   ├── dir_structure.cpython-312.pyc
     │   ├── django_setup.cpython-312.pyc
     │   ├── env_manager.cpython-312.pyc
     │   ├── file_manager.cpython-312.pyc
     │   ├── github_dir_structure.cpython-312.pyc
+    │   ├── github_manager.cpython-312.pyc
     │   ├── local_dir_structure.cpython-312.pyc
     │   └── package_installer.cpython-312.pyc
     ├── cli.py
@@ -19,9 +132,25 @@
     │   │   └── settings.cpython-312.pyc
     │   ├── constants.py
     │   └── settings.py
+    ├── db_manager.py
     ├── django_setup.py
     ├── env_manager.py
     ├── file_manager.py
-    ├── github_dir_structure.py
+    ├── github_manager.py
     ├── gui.py
+    ├── icons
+    │   ├── code-commit-solid.svg
+    │   ├── d-solid.svg
+    │   ├── database-solid.svg
+    │   ├── file-solid.svg
+    │   ├── fingerprint-solid.svg
+    │   ├── folder-open-regular.svg
+    │   ├── github-alt.svg
+    │   ├── github.svg
+    │   ├── magento.svg
+    │   ├── phoenix-framework.svg
+    │   ├── phoenix-squadron.svg
+    │   ├── square-github.svg
+    │   └── trash-solid.svg
+    ├── libraries.db
     └── package_installer.py

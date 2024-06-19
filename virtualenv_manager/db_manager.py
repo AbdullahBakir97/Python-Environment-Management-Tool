@@ -35,12 +35,37 @@ class ToolDatabase:
         """
         cursor.execute(create_query)
         
-        
-    def _execute_query(self, query, params, fetchone=False):
+         
+    
+    
+    def fetch_tool_usage_data(self):
+        """
+        Fetch tool usage data from the SQLite database
+        """
+        usage_query = """
+            SELECT name, COUNT(*) AS usage_count
+            FROM libraries
+            GROUP BY name
+        """
+        self.cursor.execute(usage_query)
+        rows = self.cursor.fetchall()
+        if not rows:
+            return {}
+        tool_usage_data = {name: count for name, count in rows}
+        return tool_usage_data
+
+    def _execute_query(self, query, params=None, fetchone=False):
+        """
+        Execute a SQL query with optional parameters and fetch results if specified
+        """
+        if params is None:
+            params = ()
         self.cursor.execute(query, params)
         if fetchone:
             return self.cursor.fetchone()
-        return self.cursor.fetchall()   
+        else:
+            return self.cursor.fetchall()
+ 
     
     
     def create_tables(self):
