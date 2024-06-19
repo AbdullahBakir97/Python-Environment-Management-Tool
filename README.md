@@ -13,7 +13,7 @@ The **Python Environment Management Tool** provides a graphical user interface (
 
 - 📚 **Library Management:**
   - Add, update, fetch, and delete libraries in an SQLite database.
-  - Installation commands, settings, and documentation URLs can be specified for each library.
+  - Specify installation commands, settings, and documentation URLs for each library.
 
 - 🛠️ **Virtual Environment Management:**
   - Create virtual environments with custom names and locations.
@@ -23,11 +23,35 @@ The **Python Environment Management Tool** provides a graphical user interface (
   - Create, delete, and manage files and folders directly from the GUI.
   - Support for creating Django projects, adding apps, and managing directory structures.
 
+- ⚙️ **Automated Django Setup:**
+  - Create new Django projects within specified virtual environments.
+  - Configure Django settings for integration with Whitenoise, Celery, and Channels.
+  - Add new Django apps to the project and configure middleware and static file storage settings.
+
 - 🔄 **GitHub Integration:**
   - Clone repositories directly from GitHub into specified directories.
 
 - 🖥️ **GUI Interface:**
   - User-friendly interface built using Tkinter for seamless interaction and ease of use.
+
+
+## Future Development
+
+🚀 **Under Development**
+
+The Python Environment Management Tool is a work in progress. We are actively working on adding more valuable features to enhance your development experience. Upcoming features include:
+
+- **Enhanced Library Management:** More robust handling of library dependencies and versions.
+- **Advanced Virtual Environment Handling:** Features to clone and export virtual environments.
+- **Integrated Testing Tools:** Built-in support for unit testing and test management.
+- **Improved Django Support:** Enhanced capabilities for managing Django settings, apps, and middleware.
+- **Customizable Templates:** Support for project and file templates to speed up project initialization.
+- **Real-time Collaboration:** Tools for collaborative coding and project management.
+- **Backup and Restore:** Automated backup and restore functionalities for your environments and projects.
+- **Performance Optimization:** Improvements to ensure smooth and efficient operation of the tool.
+
+Stay tuned for updates and feel free to contribute to the development of new features by opening issues or submitting pull requests. Your feedback and contributions are highly valued!
+
 
 ## Getting Started
 
