@@ -34,6 +34,25 @@ The **Python Environment Management Tool** provides a graphical user interface (
 - 🖥️ **GUI Interface:**
   - User-friendly interface built using Tkinter for seamless interaction and ease of use.
 
+
+## Future Development
+
+🚀 **Under Development**
+
+The Python Environment Management Tool is a work in progress. We are actively working on adding more valuable features to enhance your development experience. Upcoming features include:
+
+- **Enhanced Library Management:** More robust handling of library dependencies and versions.
+- **Advanced Virtual Environment Handling:** Features to clone and export virtual environments.
+- **Integrated Testing Tools:** Built-in support for unit testing and test management.
+- **Improved Django Support:** Enhanced capabilities for managing Django settings, apps, and middleware.
+- **Customizable Templates:** Support for project and file templates to speed up project initialization.
+- **Real-time Collaboration:** Tools for collaborative coding and project management.
+- **Backup and Restore:** Automated backup and restore functionalities for your environments and projects.
+- **Performance Optimization:** Improvements to ensure smooth and efficient operation of the tool.
+
+Stay tuned for updates and feel free to contribute to the development of new features by opening issues or submitting pull requests. Your feedback and contributions are highly valued!
+
+
 ## Getting Started
 
 ### Prerequisites
