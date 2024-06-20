@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import subprocess
+import json
 from sqlite3 import Error as SQLiteError
 
 # SQLite database file path
@@ -11,181 +12,103 @@ class ToolDatabase:
         self.db_path = db_path
         self.connection = sqlite3.connect(self.db_path)
         self.cursor = self.connection.cursor()
+        
+    def _run_ps_script(self, operation, data):
+        script = f"powershell.exe -File setup_database.ps1"
+        request = f"{operation} {json.dumps(data)}"
+        result = subprocess.run(script, input=request, text=True, capture_output=True, shell=True)
+        return result.stdout.strip()     
+    
+    
+    # def fetch_tool_usage_data(self):
+    #     """
+    #     Fetch tool usage data from the SQLite database
+    #     """
+    #     usage_query = """
+    #         SELECT name, COUNT(*) AS usage_count
+    #         FROM libraries
+    #         GROUP BY name
+    #     """
+    #     self.cursor.execute(usage_query)
+    #     rows = self.cursor.fetchall()
+    #     if not rows:
+    #         return {}
+    #     tool_usage_data = {name: count for name, count in rows}
+    #     return tool_usage_data
 
-    
-            
-    @staticmethod
-    def setup():
-        """
-        Setup the database by creating necessary tables
-        """
-        db_path = 'C:/Users/B/Project/P-V.Env-Tool/src/virtualenv_manager/libraries.db'
-        connection = sqlite3.connect(db_path)
-        cursor = connection.cursor()
-        
-        create_query = """
-            CREATE TABLE IF NOT EXISTS libraries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL,
-                description TEXT,
-                installation_command TEXT NOT NULL,
-                settings TEXT,
-                documentation_url TEXT
-            )
-        """
-        cursor.execute(create_query)
-        
-         
-    
-    
-    def fetch_tool_usage_data(self):
-        """
-        Fetch tool usage data from the SQLite database
-        """
-        usage_query = """
-            SELECT name, COUNT(*) AS usage_count
-            FROM libraries
-            GROUP BY name
-        """
-        self.cursor.execute(usage_query)
-        rows = self.cursor.fetchall()
-        if not rows:
-            return {}
-        tool_usage_data = {name: count for name, count in rows}
-        return tool_usage_data
+    # def _execute_query(self, query, params=None, fetchone=False):
+    #     if params is None:
+    #         params = ()
+    #     self.cursor.execute(query, params)
+    #     if fetchone:
+    #         return self.cursor.fetchone()
+    #     else:
+    #         return self.cursor.fetchall()
 
-    def _execute_query(self, query, params=None, fetchone=False):
-        """
-        Execute a SQL query with optional parameters and fetch results if specified
-        """
-        if params is None:
-            params = ()
-        self.cursor.execute(query, params)
-        if fetchone:
-            return self.cursor.fetchone()
-        else:
-            return self.cursor.fetchall()
- 
-    
-    
-    def create_tables(self):
-        """
-        Create necessary tables in the database if they don't exist
-        """
-        create_query = """
-            CREATE TABLE IF NOT EXISTS libraries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL,
-                description TEXT,
-                installation_command TEXT NOT NULL,
-                settings TEXT,
-                documentation_url TEXT
-            )
-        """
-        self._execute_query(create_query)
-        
+    # def create_tables(self):
+    #     create_query = """
+    #         CREATE TABLE IF NOT EXISTS libraries (
+    #             id INTEGER PRIMARY KEY AUTOINCREMENT,
+    #             name TEXT UNIQUE NOT NULL,
+    #             description TEXT,
+    #             installation_command TEXT NOT NULL,
+    #             settings TEXT,
+    #             documentation_url TEXT
+    #         )
+    #     """
+    #     self._execute_query(create_query)
 
     def add_library(self, name, description, installation_command, settings=None, documentation_url=None):
-        """
-        Add a library to the SQLite database
-        """
-        insert_query = """
-            INSERT INTO libraries (name, description, installation_command, settings, documentation_url)
-            VALUES (?, ?, ?, ?, ?)
-        """
-        params = (name, description, installation_command, settings, documentation_url)
-        self._execute_query(insert_query, params)
-        
+        data = {
+            "name": name,
+            "description": description,
+            "installation_command": installation_command,
+            "settings": settings,
+            "documentation_url": documentation_url
+        }
+        return self._run_ps_script("add", data)
 
     def update_library_name(self, current_name, new_name):
-        """
-        Update the name of a library in the SQLite database
-        """
-        update_query = """
-            UPDATE libraries SET name=? WHERE name=?
-        """
-        params = (new_name, current_name)
-        self._execute_query(update_query, params)
-        
+        data = {"current_name": current_name, "new_name": new_name}
+        return self._run_ps_script("update", data)
 
     def update_library_description(self, name, description):
-        """
-        Update the description of a library in the SQLite database
-        """
-        update_query = """
-            UPDATE libraries SET description=? WHERE name=?
-        """
-        params = (description, name)
-        self._execute_query(update_query, params)
-        
+        data = {"name": name, "description": description}
+        return self._run_ps_script("update", data)
 
     def update_library_installation_command(self, name, installation_command):
-        """
-        Update the installation command of a library in the SQLite database
-        """
-        update_query = """
-            UPDATE libraries SET installation_command=? WHERE name=?
-        """
-        params = (installation_command, name)
-        self._execute_query(update_query, params)
-        
+        data = {"name": name, "installation_command": installation_command}
+        return self._run_ps_script("update", data)
 
     def update_library_settings(self, name, settings):
-        """
-        Update the settings of a library in the SQLite database
-        """
-        update_query = """
-            UPDATE libraries SET settings=? WHERE name=?
-        """
-        params = (settings, name)
-        self._execute_query(update_query, params)
-        
+        data = {"name": name, "settings": settings}
+        return self._run_ps_script("update", data)
 
     def update_library_documentation_url(self, name, documentation_url):
-        """
-        Update the documentation URL of a library in the SQLite database
-        """
-        update_query = """
-            UPDATE libraries SET documentation_url=? WHERE name=?
-        """
-        params = (documentation_url, name)
-        self._execute_query(update_query, params)
-        
+        data = {"name": name, "documentation_url": documentation_url}
+        return self._run_ps_script("update", data)
 
     def get_library(self, name):
-        """
-        Retrieve a library from the SQLite database
-        """
-        select_query = """
-            SELECT * FROM libraries WHERE name=?
-        """
-        row = self._execute_query(select_query, (name,), fetchone=True)
-        if row:
-            return row
-        else:
-            raise ValueError(f"Library '{name}' not found in the database.")
-        
+        data = {"name": name}
+        result = self._run_ps_script("fetch", data)
+        return json.loads(result)
 
     def delete_library(self, name):
-        """
-        Delete a library from the SQLite database
-        """
-        delete_query = """
-            DELETE FROM libraries WHERE name=?
-        """
-        self._execute_query(delete_query, (name,))
-        
+        data = {"name": name}
+        return self._run_ps_script("delete", data)
+
+    def fetch_all_libraries(self):
+        result = self._run_ps_script("fetch_all", {})
+        return json.loads(result)
 
     def fetch_library_installation_command(self, name):
-        """
-        Retrieve the installation command of a library from the SQLite database
-        """
-        select_query = "SELECT installation_command FROM libraries WHERE name=?"
-        row = self._execute_query(select_query, (name,), fetchone=True)
-        if row:
-            return row[0]
-        else:
-            raise ValueError(f"Library '{name}' not found in the database.")
+        data = {"name": name}
+        result = self._run_ps_script("fetch_installation_command", data)
+        return result
+
+    def fetch_tool_usage_data(self):
+        result = self._run_ps_script("fetch_usage_data", {})
+        return json.loads(result)
         
         
 

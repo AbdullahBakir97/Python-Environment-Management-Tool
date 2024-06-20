@@ -21,35 +21,36 @@ import io
 import cairosvg
 import cairocffi as cairo
 
-class Application(TKMT.ThemedTKinterFrame):
+class Application(tk.Tk):
     def __init__(self):
-        super().__init__("Professional Tool", "sun-valley", "dark")  # Initialize ThemedTKinterFrame
+        super().__init__()
+        self.title("Professional Tool")
         self.tool_db = ToolDatabase(db_path="./libraries.db")
-        self.create_widgets()
+        self.create_themed_frame()
 
-    def create_widgets(self):
-        self.notebook = ttk.Notebook(self.root)
+    def create_themed_frame(self):
+        master = tk.Tk()
+        themed_frame = ThemedTKinterFrame(master, "sun-valley", "dark")
+        self.create_widgets(themed_frame)
+        
+        themed_frame = ThemedTKinterFrame(themed_frame, "sun-valley", "dark")
+        self.create_widgets(themed_frame)
 
-        # Environment Tab
-        self.create_environment_tab()
+    def create_widgets(self, themed_frame):
+        master = tk.Tk()
+        notebook = ttk.Notebook(master)
 
-        # Manage Files Tab
-        self.manage_files_tab()
+        self.create_environment_tab(notebook)
+        self.manage_files_tab(notebook)
+        self.django_app_tab(notebook)
+        self.add_library_tab(notebook)
+        self.repository_tab(notebook)
 
-        # Django App Tab
-        self.django_app_tab()
+        notebook.pack(expand=True, fill="both")
 
-        # Add Library Tab
-        self.add_library_tab()
-
-        # Repository Tab
-        self.repository_tab()
-
-        self.notebook.pack(expand=True, fill="both")
-
-    def create_environment_tab(self):
-        env_frame = ttk.Frame(self.notebook)
-        self.notebook.add(env_frame, text="Environment")
+    def create_environment_tab(self, notebook):
+        env_frame = ttk.Frame(notebook)
+        notebook.add(env_frame, text="Environment")
 
         env_label_frame = ttk.LabelFrame(env_frame, text="Create Virtual Environment")
         env_label_frame.pack(fill="both", expand=True, padx=20, pady=20)
@@ -66,15 +67,15 @@ class Application(TKMT.ThemedTKinterFrame):
 
         # Load the PNG image
         create_icon = ImageTk.PhotoImage(Image.open('icons/magento.png'))
-        create_button = tk.Button(env_label_frame, image=create_icon)
+        create_button = ttk.Button(env_label_frame, image=create_icon)
         create_button.image = create_icon  # Keep a reference to the image
         create_button.pack()
 
 
 
-    def manage_files_tab(self):
-        file_frame = ttk.Frame(self)
-        self.notebook.add(file_frame, text="Manage Files")
+    def manage_files_tab(self, notebook):
+        file_frame = ttk.Frame(notebook)
+        notebook.add(file_frame, text="Manage Files")
 
         ttk.Label(file_frame, text="Manage Files and Projects", font=("Arial", 12, "bold")).pack(pady=10)
 
@@ -88,13 +89,54 @@ class Application(TKMT.ThemedTKinterFrame):
 
         # Create a ttk.Button with custom style
         create_file_button = ttk.Button(file_frame, text="Create File", image=create_file_icon,
-                                        compound=tk.LEFT, style='ToolButton.TButton', command=self.create_file_dialog)
+        compound=tk.LEFT, style='ToolButton.TButton', command=self.create_file_dialog)
         create_file_button.image = create_file_icon  # Keep a reference to the image
         create_file_button.pack(pady=5)
 
         ttk.Button(file_frame, text="Create Folder", command=self.create_folder_dialog).pack(pady=5)
         ttk.Button(file_frame, text="Delete File", command=self.delete_file_dialog).pack(pady=5)
         ttk.Button(file_frame, text="Delete Folder", command=self.delete_folder_dialog).pack(pady=5)
+    
+
+
+
+
+    def django_app_tab(self, notebook):
+        django_frame = ttk.Frame(notebook)
+        notebook.add(django_frame, text="Django App")
+
+        django_label_frame = ttk.LabelFrame(django_frame, text="Django Management")
+        django_label_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        ttk.Button(django_label_frame, text="Create Django Project", command=self.create_django_project_dialog).pack(pady=5)
+        ttk.Button(django_label_frame, text="Add Django App", command=self.add_django_app_dialog).pack(pady=5)
+
+    def add_library_tab(self, notebook):
+        library_frame = ttk.Frame(notebook)
+        notebook.add(library_frame, text="Add Library")
+
+        library_label_frame = ttk.LabelFrame(library_frame, text="Library Management")
+        library_label_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        ttk.Button(library_label_frame, text="Install Package", command=self.install_package_dialog).pack(pady=5)
+        ttk.Button(library_label_frame, text="Add Library", command=self.open_add_library_form).pack(pady=5)
+
+    def repository_tab(self, notebook):
+        repo_frame = ttk.Frame(notebook)
+        notebook.add(repo_frame, text="Repository")
+
+        repo_label_frame = ttk.LabelFrame(repo_frame, text="Repository Management")
+        repo_label_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        ttk.Button(repo_label_frame, text="Create Repository", command=self.create_repository_dialog).pack(pady=5)
+        ttk.Button(repo_label_frame, text="Push Repository", command=self.push_repository_dialog).pack(pady=5)
+        ttk.Button(repo_label_frame, text="Read Repository Changes", command=self.read_repository_changes_dialog).pack(pady=5)
+        ttk.Button(repo_label_frame, text="Commit Changes", command=self.commit_changes_dialog).pack(pady=5)
+        ttk.Button(repo_label_frame, text="Generate Tool Report", command=self.generate_tool_report_dialog).pack(pady=5)
+
+        style = ttk.Style()
+        style.configure('ToolButton.TButton', font=('Arial', 10, 'bold'), foreground='black', background='white')
+        style.map('ToolButton.TButton', background=[('active', '#ADD8E6')])
 
     def django_app_tab(self):
         django_frame = ttk.Frame(self.notebook)
@@ -334,8 +376,7 @@ class Application(TKMT.ThemedTKinterFrame):
             messagebox.showerror("Error", f"Failed to generate tool report: {e}")
 
 
-    def run(self):
-        self.mainloop()
+
 
 class AddLibraryForm(tk.Toplevel):
     def __init__(self, master):
@@ -390,4 +431,4 @@ class AddLibraryForm(tk.Toplevel):
 
 if __name__ == "__main__":
     app = Application()
-    app.run()
+    app.mainloop()
