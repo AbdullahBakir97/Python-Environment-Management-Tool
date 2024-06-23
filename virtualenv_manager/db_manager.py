@@ -17,54 +17,16 @@ class ToolDatabase:
         script = f"powershell.exe -File setup_database.ps1"
         request = f"{operation} {json.dumps(data)}"
         result = subprocess.run(script, input=request, text=True, capture_output=True, shell=True)
-        return result.stdout.strip()     
-    
-    
-    # def fetch_tool_usage_data(self):
-    #     """
-    #     Fetch tool usage data from the SQLite database
-    #     """
-    #     usage_query = """
-    #         SELECT name, COUNT(*) AS usage_count
-    #         FROM libraries
-    #         GROUP BY name
-    #     """
-    #     self.cursor.execute(usage_query)
-    #     rows = self.cursor.fetchall()
-    #     if not rows:
-    #         return {}
-    #     tool_usage_data = {name: count for name, count in rows}
-    #     return tool_usage_data
+        return result.stdout.strip()
 
-    # def _execute_query(self, query, params=None, fetchone=False):
-    #     if params is None:
-    #         params = ()
-    #     self.cursor.execute(query, params)
-    #     if fetchone:
-    #         return self.cursor.fetchone()
-    #     else:
-    #         return self.cursor.fetchall()
-
-    # def create_tables(self):
-    #     create_query = """
-    #         CREATE TABLE IF NOT EXISTS libraries (
-    #             id INTEGER PRIMARY KEY AUTOINCREMENT,
-    #             name TEXT UNIQUE NOT NULL,
-    #             description TEXT,
-    #             installation_command TEXT NOT NULL,
-    #             settings TEXT,
-    #             documentation_url TEXT
-    #         )
-    #     """
-    #     self._execute_query(create_query)
-
-    def add_library(self, name, description, installation_command, settings=None, documentation_url=None):
+    def add_library(self, name, description, installation_command, settings=None, documentation_url=None, version=None):
         data = {
             "name": name,
             "description": description,
             "installation_command": installation_command,
-            "settings": settings,
-            "documentation_url": documentation_url
+            "settings": json.dumps(settings) if settings else None,
+            "documentation_url": documentation_url,
+            "version": version
         }
         return self._run_ps_script("add", data)
 
@@ -81,11 +43,15 @@ class ToolDatabase:
         return self._run_ps_script("update", data)
 
     def update_library_settings(self, name, settings):
-        data = {"name": name, "settings": settings}
+        data = {"name": name, "settings": json.dumps(settings)}
         return self._run_ps_script("update", data)
 
     def update_library_documentation_url(self, name, documentation_url):
         data = {"name": name, "documentation_url": documentation_url}
+        return self._run_ps_script("update", data)
+
+    def update_library_version(self, name, version):
+        data = {"name": name, "version": version}
         return self._run_ps_script("update", data)
 
     def get_library(self, name):
@@ -109,24 +75,8 @@ class ToolDatabase:
     def fetch_tool_usage_data(self):
         result = self._run_ps_script("fetch_usage_data", {})
         return json.loads(result)
-        
-        
-
-
-# Example usage
-if __name__ == "__main__":
-    # Create an instance of ToolDatabase
-    tool_db = ToolDatabase('libraries.db')
-
-    # Example add library to database
-    tool_db.add_library("Django", "The core framework for web application development in Python.", "pip install django", "{'version': '3.2.5'}", "https://docs.djangoproject.com")
-
-    # Example get library
-    library = tool_db.get_library("Django")
-    print(f"Library details: {library}")
-
-    # Example update library fields
-    tool_db.update_library_description("Django", "A high-level Python web framework")
-    tool_db.update_library_installation_command("Django", "pip install django==4.0.0")
-    tool_db.update_library_settings("Django", "{'version': '4.0.0'}")
-    tool_db.update_library_documentation_url("Django", "https://docs.djangoproject.com/4.0/")
+    
+    def fetch_by_id(self, id):
+        data = {"id": id}
+        result = self._run_ps_script("fetch_by_id", data)
+        return json.loads(result)

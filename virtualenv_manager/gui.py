@@ -14,10 +14,15 @@ from github_manager import RepoManager
 from dir_structure import DirStructure
 from db_manager import ToolDatabase
 from PIL import Image, ImageTk
+from tkcalendar import Calendar, DateEntry
+import matplotlib.pyplot as plt
+from ttkthemes import ThemedStyle
+import sv_ttk
 import sqlite3
 import os
 import random
 import io
+import glob
 import cairosvg
 import cairocffi as cairo
 
@@ -29,16 +34,12 @@ class Application(tk.Tk):
         self.create_themed_frame()
 
     def create_themed_frame(self):
-        master = tk.Tk()
-        themed_frame = ThemedTKinterFrame(master, "sun-valley", "dark")
-        self.create_widgets(themed_frame)
-        
-        themed_frame = ThemedTKinterFrame(themed_frame, "sun-valley", "dark")
-        self.create_widgets(themed_frame)
+        self.style = ThemedStyle(self)
+        sv_ttk.set_theme("dark")  # Set your preferred theme, e.g., "arc", "plastik", "clearlooks"
+        self.create_widgets()
 
-    def create_widgets(self, themed_frame):
-        master = tk.Tk()
-        notebook = ttk.Notebook(master)
+    def create_widgets(self):
+        notebook = ttk.Notebook(self)
 
         self.create_environment_tab(notebook)
         self.manage_files_tab(notebook)
@@ -62,44 +63,16 @@ class Application(tk.Tk):
         create_button = ttk.Button(env_label_frame, text="Create", command=self.create_virtual_environment)
         create_button.pack(pady=10)
 
-        # Load SVG icon and convert to PNG
-        cairosvg.svg2png(url='icons/magento.svg', write_to='icons/magento.png')
-
-        # Load the PNG image
-        create_icon = ImageTk.PhotoImage(Image.open('icons/magento.png'))
-        create_button = ttk.Button(env_label_frame, image=create_icon)
-        create_button.image = create_icon  # Keep a reference to the image
-        create_button.pack()
-
-
-
     def manage_files_tab(self, notebook):
         file_frame = ttk.Frame(notebook)
         notebook.add(file_frame, text="Manage Files")
 
         ttk.Label(file_frame, text="Manage Files and Projects", font=("Arial", 12, "bold")).pack(pady=10)
 
-        # Convert SVG to PNG using cairosvg
-        cairosvg.svg2png(url='icons/file-solid.svg', write_to='icons/file-solid.png')
-
-        # Load the PNG image and resize
-        icon_size = (32, 32)  # Set your desired icon size
-        create_file_icon = Image.open('icons/file-solid.png').resize(icon_size, Image.LANCZOS)
-        create_file_icon = ImageTk.PhotoImage(create_file_icon)
-
-        # Create a ttk.Button with custom style
-        create_file_button = ttk.Button(file_frame, text="Create File", image=create_file_icon,
-        compound=tk.LEFT, style='ToolButton.TButton', command=self.create_file_dialog)
-        create_file_button.image = create_file_icon  # Keep a reference to the image
-        create_file_button.pack(pady=5)
-
+        ttk.Button(file_frame, text="Create File", command=self.create_file_dialog).pack(pady=5)
         ttk.Button(file_frame, text="Create Folder", command=self.create_folder_dialog).pack(pady=5)
         ttk.Button(file_frame, text="Delete File", command=self.delete_file_dialog).pack(pady=5)
         ttk.Button(file_frame, text="Delete Folder", command=self.delete_folder_dialog).pack(pady=5)
-    
-
-
-
 
     def django_app_tab(self, notebook):
         django_frame = ttk.Frame(notebook)
@@ -118,8 +91,93 @@ class Application(tk.Tk):
         library_label_frame = ttk.LabelFrame(library_frame, text="Library Management")
         library_label_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        ttk.Button(library_label_frame, text="Install Package", command=self.install_package_dialog).pack(pady=5)
-        ttk.Button(library_label_frame, text="Add Library", command=self.open_add_library_form).pack(pady=5)
+        button_frame = ttk.Frame(library_label_frame)
+        button_frame.pack(fill="x", padx=10, pady=10)
+
+        ttk.Button(button_frame, text="Install Package", command=self.install_package_dialog).pack(side="left", padx=5)
+        ttk.Button(button_frame, text="Add Library", command=self.open_add_library_form).pack(side="left", padx=5)
+
+        columns = ('Library Name', 'Version', 'Description', 'Actions')
+        self.library_tree = ttk.Treeview(library_label_frame, columns=columns, show='headings')
+        self.library_tree.heading('Library Name', text='Library Name')
+        self.library_tree.heading('Version', text='Version')
+        self.library_tree.heading('Description', text='Description')
+        self.library_tree.heading('Actions', text='Actions')
+        self.library_tree.pack(padx=10, pady=10, fill='both', expand=True)
+
+        # Add a vertical scrollbar to the Treeview
+        scrollbar = ttk.Scrollbar(library_label_frame, orient="vertical", command=self.library_tree.yview)
+        self.library_tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+        # Fetch libraries from the database and populate Treeview
+        self.populate_library_tree()
+
+        self.library_tree.bind("<<TreeviewSelect>>", self.on_item_select)
+
+    def populate_library_tree(self):
+        libraries = self.fetch_libraries_from_db()
+        for library in libraries:
+            library_name, version, description = library
+            item_id = self.library_tree.insert('', 'end', values=(library_name, version, description))
+            self.create_action_buttons(item_id)
+
+    def create_action_buttons(self, item_id):
+        edit_button = ttk.Button(self.library_tree, text="Edit", command=lambda: self.edit_library(item_id))
+        remove_button = ttk.Button(self.library_tree, text="Remove", command=lambda: self.remove_library(item_id))
+        self.library_tree.set(item_id, 'Actions', ' ')
+        self.library_tree.tag_bind(item_id, '<Button-1>', lambda event, edit=edit_button, remove=remove_button: self.on_button_click(event, edit, remove))
+
+    def on_item_select(self, event):
+        selected_item = self.library_tree.selection()[0]
+        self.create_action_buttons(selected_item)
+
+    def on_button_click(self, event, edit_button, remove_button):
+        item_id = self.library_tree.selection()[0]
+        x, y, width, height = self.library_tree.bbox(item_id, 'Actions')
+        edit_button.place(x=x, y=y, width=width//2, height=height)
+        remove_button.place(x=x + width//2, y=y, width=width//2, height=height)
+
+    def edit_library(self, item_id):
+        item_values = self.library_tree.item(item_id, 'values')
+        library_name = item_values[0]
+        # Implement the function to edit the library details
+        messagebox.showinfo("Edit Library", f"Editing {library_name}")
+
+    def remove_library(self, item_id):
+        item_values = self.library_tree.item(item_id, 'values')
+        library_name = item_values[0]
+        # Implement the function to remove the library
+        if messagebox.askyesno("Remove Library", f"Are you sure you want to remove {library_name}?"):
+            self.library_tree.delete(item_id)
+            self.delete_library_from_db(library_name)
+
+    def fetch_libraries_from_db(self):
+        conn = sqlite3.connect('libraries.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, version, description FROM libraries")
+        libraries = cursor.fetchall()
+        conn.close()
+        return libraries
+
+    def delete_library_from_db(self, library_name):
+        conn = sqlite3.connect('libraries.db')
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM libraries WHERE name=?", (library_name,))
+        conn.commit()
+        conn.close()
+
+    def show_pip_command(self, library_name):
+        pip_command = f"pip install {library_name}"
+        messagebox.showinfo(f"Pip Command for {library_name}", pip_command)
+
+    def open_add_library_form(self):
+        AddLibraryForm(self)
+
+    def install_package_dialog(self):
+        # Placeholder function to install a package
+        messagebox.showinfo("Install Package", "This will open a dialog to install a package.")
+
 
     def repository_tab(self, notebook):
         repo_frame = ttk.Frame(notebook)
@@ -133,51 +191,6 @@ class Application(tk.Tk):
         ttk.Button(repo_label_frame, text="Read Repository Changes", command=self.read_repository_changes_dialog).pack(pady=5)
         ttk.Button(repo_label_frame, text="Commit Changes", command=self.commit_changes_dialog).pack(pady=5)
         ttk.Button(repo_label_frame, text="Generate Tool Report", command=self.generate_tool_report_dialog).pack(pady=5)
-
-        style = ttk.Style()
-        style.configure('ToolButton.TButton', font=('Arial', 10, 'bold'), foreground='black', background='white')
-        style.map('ToolButton.TButton', background=[('active', '#ADD8E6')])
-
-    def django_app_tab(self):
-        django_frame = ttk.Frame(self.notebook)
-        self.notebook.add(django_frame, text="Django App")
-
-        django_label_frame = ttk.LabelFrame(django_frame, text="Django Management")
-        django_label_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        ttk.Button(django_label_frame, text="Create Django Project", command=self.create_django_project_dialog).pack(pady=5)
-        ttk.Button(django_label_frame, text="Add Django App", command=self.add_django_app_dialog).pack(pady=5)
-
-
-    def add_library_tab(self):
-        library_frame = ttk.Frame(self.notebook)
-        self.notebook.add(library_frame, text="Add Library")
-
-        library_label_frame = ttk.LabelFrame(library_frame, text="Library Management")
-        library_label_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        ttk.Button(library_label_frame, text="Install Package", command=self.install_package_dialog).pack(pady=5)
-        ttk.Button(library_label_frame, text="Add Library", command=self.open_add_library_form).pack(pady=5)
-
-    def repository_tab(self):
-        repo_frame = ttk.Frame(self.notebook)
-        self.notebook.add(repo_frame, text="Repository")
-
-        repo_label_frame = ttk.LabelFrame(repo_frame, text="Repository Management")
-        repo_label_frame.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # Create Repository Button
-        ttk.Button(repo_label_frame, text="Create Repository", command=self.create_repository_dialog).pack(pady=5)
-        ttk.Button(repo_label_frame, text="Push Repository", command=self.push_repository_dialog).pack(pady=5)
-        ttk.Button(repo_label_frame, text="Read Repository Changes", command=self.read_repository_changes_dialog).pack(pady=5)
-        ttk.Button(repo_label_frame, text="Commit Changes", command=self.commit_changes_dialog).pack(pady=5)
-        ttk.Button(repo_label_frame, text="Generate Tool Report", command=self.generate_tool_report_dialog).pack(pady=5)
-
-        # Style configuration for hover effect
-        style = ttk.Style()
-        style.configure('ToolButton.TButton', font=('Arial', 10, 'bold'), foreground='black', background='white')
-        style.map('ToolButton.TButton', background=[('active', '#ADD8E6')])
-
     def create_virtual_environment(self):
         env_name = self.env_name_entry.get().strip()
         if not env_name:
@@ -273,7 +286,7 @@ class Application(tk.Tk):
             messagebox.showerror("Error", f"Failed to install library: {str(e)}")
 
     def open_add_library_form(self):
-        add_library_form = AddLibraryForm(self)
+        AddLibraryForm(self)
 
     def create_repository_dialog(self):
         repo_name = simpledialog.askstring("Create Repository", "Enter repository name:")
@@ -314,7 +327,6 @@ class Application(tk.Tk):
                     messagebox.showinfo("Success", f"Changes committed successfully to repository at '{repo_path}'.")
                 except Exception as e:
                     messagebox.showerror("Error", f"Failed to commit changes: {e}")
-                    
 
     def generate_tool_report_dialog(self):
         try:
@@ -374,8 +386,6 @@ class Application(tk.Tk):
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate tool report: {e}")
-
-
 
 
 class AddLibraryForm(tk.Toplevel):
